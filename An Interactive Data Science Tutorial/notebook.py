@@ -62,7 +62,7 @@
 # 
 # *Simply run the cell below by selecting it and pressing the play button.*
 
-# In[ ]:
+# In[1]: Imports
 
 # Ignore warnings
 import warnings
@@ -92,7 +92,8 @@ import matplotlib.pylab as pylab
 import seaborn as sns
 
 # Configure visualisations
-get_ipython().magic(u'matplotlib inline')
+#get_ipython().magic(u'matplotlib inline')
+#get_ipython().magic(u'matplotlib notebook')
 mpl.style.use( 'ggplot' )
 sns.set_style( 'white' )
 pylab.rcParams[ 'figure.figsize' ] = 8 , 6
@@ -103,7 +104,7 @@ pylab.rcParams[ 'figure.figsize' ] = 8 , 6
 # 
 # *Simply run the cell below by selecting it and pressing the play button.*
 
-# In[ ]:
+# In[2]: Functions
 
 def plot_histograms( df , variables , n_rows , n_cols ):
     fig = plt.figure( figsize = ( 16 , 12 ) )
@@ -177,11 +178,9 @@ def plot_model_var_imp( model , X , y ):
 # 
 # *Select the cell below and run it by pressing the play button.*
 
-# In[ ]:
-
-# get titanic & test csv files as a DataFrame
-train = pd.read_csv("../input/train.csv")
-test    = pd.read_csv("../input/test.csv")
+# In[3]: get titanic & test csv files as a DataFrame
+train = pd.read_csv("./train.csv")
+test    = pd.read_csv("./test.csv")
 
 full = train.append( test , ignore_index = True )
 titanic = full[ :891 ]
@@ -191,7 +190,7 @@ del train , test
 print ('Datasets:' , 'full:' , full.shape , 'titanic:' , titanic.shape)
 
 
-# ## 2.4 Statistical summaries and visualisations
+# In[4]: 2.4 Statistical summaries and visualisations
 # 
 # To understand the data we are now going to consider some key facts about various variables including their relationship with the target variable, i.e. survival.
 # 
@@ -199,7 +198,6 @@ print ('Datasets:' , 'full:' , full.shape , 'titanic:' , titanic.shape)
 # 
 # *Select the cell below and run it by pressing the play button.*
 
-# In[ ]:
 
 # Run the code to see the variables, then read the variable description below to understand them.
 titanic.head()
@@ -226,7 +224,7 @@ titanic.head()
 # 
 # [More information on the Kaggle site](https://www.kaggle.com/c/titanic/data)
 
-# ### 2.4.1 Next have a look at some key information about the variables
+# In[5]: 2.4.1 Next have a look at some key information about the variables
 # An numeric variable is one with values of integers or real numbers while a categorical variable is a variable that can take on one of a limited, and usually fixed, number of possible values, such as blood type.
 # 
 # Notice especially what type of variable each is, how many observations there are and some of the variable values.
@@ -235,29 +233,25 @@ titanic.head()
 # 
 # *Select the cell below and run it by pressing the play button.*
 
-# In[ ]:
 
 titanic.describe()
 
 
-# ### 2.4.2 A heat map of correlation may give us a understanding of which variables are important
+# In[6]: 2.4.2 A heat map of correlation may give us a understanding of which variables are important
 # *Select the cell below and run it by pressing the play button.*
 
-# In[ ]:
 
 plot_correlation_map( titanic )
+plt.title('Features correlation')
 
 
-# ### 2.4.3 Let's further explore the relationship between the features and survival of passengers 
+# In[7]: 2.4.3 Let's further explore the relationship between the features and survival of passengers 
 # We start by looking at the relationship between age and survival.
 # 
 # *Select the cell below and run it by pressing the play button.*
 
-# In[ ]:
-
 # Plot distributions of Age of passangers who survived or did not survive
 plot_distribution( titanic , var = 'Age' , target = 'Survived' , row = 'Sex' )
-
 
 # Consider the graphs above. Differences between survival for different values is what will be used to separate the target variable (survival in this case) in the model. If the two lines had been about the same, then it would not have been a good variable for our predictive model. 
 # 
@@ -299,15 +293,15 @@ plot_categories( titanic , cat = 'Embarked' , target = 'Survived' )
 
 # Excersise 2
 # Plot survival rate by Sex
-mpl.rcParams['figure.figsize'] = (14, 6)
+#mpl.rcParams['figure.figsize'] = (14, 6)
 fig = plt.figure()
-plt.subplot(141)
+plt.subplot(221)
 sns.barplot(titanic['Sex'], titanic['Survived'])
-plt.subplot(142)
+plt.subplot(222)
 sns.barplot(titanic['Pclass'], titanic['Survived'])
-plt.subplot(143)
+plt.subplot(223)
 sns.barplot(titanic['SibSp'], titanic['Survived'])
-plt.subplot(144)
+plt.subplot(224)
 sns.barplot(titanic['Parch'], titanic['Survived'])
 # plot_categories(df=titanic, cat='Sex', target='Survived')
 
