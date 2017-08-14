@@ -93,10 +93,10 @@ import seaborn as sns
 
 # Configure visualisations
 #get_ipython().magic(u'matplotlib inline')
-#get_ipython().magic(u'matplotlib notebook')
+#get_ipython().magic(u'matplotlib')
 mpl.style.use( 'ggplot' )
 sns.set_style( 'white' )
-pylab.rcParams[ 'figure.figsize' ] = 8 , 6
+#pylab.rcParams[ 'figure.figsize' ] = 8 , 6
 
 
 # ## 2.2 Setup helper Functions
@@ -178,7 +178,7 @@ def plot_model_var_imp( model , X , y ):
 # 
 # *Select the cell below and run it by pressing the play button.*
 
-# In[3]: get titanic & test csv files as a DataFrame
+# In[3]: Load data csv files as a DataFrame
 train = pd.read_csv("./train.csv")
 test    = pd.read_csv("./test.csv")
 
@@ -192,8 +192,8 @@ print ('Datasets:' , 'full:' , full.shape , 'titanic:' , titanic.shape)
 
 # In[4]: 2.4 Statistical summaries and visualisations
 # 
-# To understand the data we are now going to consider some key facts about various variables including their relationship with the target variable, i.e. survival.
-# 
+# To understand the data we are now going to consider some key facts about 
+# various variables including their relationship with the target variable, i.e. survival.
 # We start by looking at a few lines of the data
 # 
 # *Select the cell below and run it by pressing the play button.*
@@ -262,21 +262,17 @@ plot_distribution( titanic , var = 'Age' , target = 'Survived' , row = 'Sex' )
 # 
 # *Hint: use the code from the previous cell as a starting point.*
 
-# In[ ]:
-
-# Excersise 1
-# Plot distributions of Fare of passangers who survived or did not survive
+# In[8]: Distributions of Fare of passangers who survived or did not survive
 plot_distribution( titanic , var = 'Fare' , target = 'Survived' , row = 'Sex' )
 
 
-# ### 2.4.4 Embarked
+# In[9]: 2.4.4 Embarked
 # We can also look at categorical variables like Embarked and their relationship with survival.
 # 
 # - C = Cherbourg  
 # - Q = Queenstown
 # - S = Southampton
 
-# In[ ]:
 
 # Plot survival rate by Embarked
 plot_categories( titanic , cat = 'Embarked' , target = 'Survived' )
@@ -289,8 +285,7 @@ plot_categories( titanic , cat = 'Embarked' , target = 'Survived' )
 # 
 # After considering these graphs, which variables do you expect to be good predictors of survival? 
 
-# In[ ]:
-
+# In[10]: FIgure : Survival vs Sex, Pclass, SibSp, and Parch
 # Excersise 2
 # Plot survival rate by Sex
 #mpl.rcParams['figure.figsize'] = (14, 6)
@@ -306,153 +301,107 @@ sns.barplot(titanic['Parch'], titanic['Survived'])
 # plot_categories(df=titanic, cat='Sex', target='Survived')
 
 
-# # 3. Data Preparation
+# %% 3. Data Preparation
 
-# ## 3.1 Categorical variables need to be transformed to numeric variables
-# The variables *Embarked*, *Pclass* and *Sex* are treated as categorical variables. Some of our model algorithms can only handle numeric values and so we need to create a new variable (dummy variable) for every unique value of the categorical variables.
-# 
-# This variable will have a value 1 if the row has a particular value and a value 0 if not. *Sex* is a dichotomy (old school gender theory) and will be encoded as one binary variable (0 or 1).
-# 
-# *Select the cells below and run it by pressing the play button.*
-
-# In[ ]:
+# %% 3.1 1-hot encoding for categorical variables
 
 # Transform Sex into binary values 0 and 1
 sex = pd.Series( np.where( full.Sex == 'male' , 1 , 0 ) , name = 'Sex' )
 
-
-# In[ ]:
-
 # Create a new variable for every unique value of Embarked
 embarked = pd.get_dummies( full.Embarked , prefix='Embarked' )
-embarked.head()
-
-
-# In[ ]:
 
 # Create a new variable for every unique value of Embarked
 pclass = pd.get_dummies( full.Pclass , prefix='Pclass' )
-pclass.head()
 
 
-# ## 3.2 Fill missing values in variables
-# Most machine learning alghorims require all variables to have values in order to use it for training the model. The simplest method is to fill missing values with the average of the variable across all observations in the training set.
-# 
-# *Select the cells below and run it by pressing the play button.*
-
-# In[ ]:
+# %% 3.2 Fill missing values in variables
 
 # Create dataset
 imputed = pd.DataFrame()
 
 # Fill missing values of Age with the average of Age (mean)
-imputed[ 'Age' ] = full.Age.fillna( full.Age.mean() )
+imputed['Age'] = full.Age.fillna(full.Age.mean())
 
 # Fill missing values of Fare with the average of Fare (mean)
-imputed[ 'Fare' ] = full.Fare.fillna( full.Fare.mean() )
+imputed['Fare'] = full.Fare.fillna(full.Fare.mean())
 
-imputed.head()
+# %% 3.3 Feature Engineering &ndash; Creating new variables
+# Credit: http://ahmedbesbes.com/
+#           how-to-score-08134-in-titanic-kaggle-challenge.html
 
-
-# ## 3.3 Feature Engineering &ndash; Creating new variables
-# Credit: http://ahmedbesbes.com/how-to-score-08134-in-titanic-kaggle-challenge.html
-
-# ### 3.3.1 Extract titles from passenger names
+# %% 3.3.1 Extract titles from passenger names
 # Titles reflect social status and may predict survival probability
-# 
-# *Select the cell below and run it by pressing the play button.*
-
-# In[ ]:
 
 title = pd.DataFrame()
 # we extract the title from each name
-title[ 'Title' ] = full[ 'Name' ].map( lambda name: name.split( ',' )[1].split( '.' )[0].strip() )
+title['Title'] = full['Name'].map(
+        lambda name: name.split(',')[1].split('.')[0].strip())
 
 # a map of more aggregated titles
 Title_Dictionary = {
-                    "Capt":       "Officer",
-                    "Col":        "Officer",
-                    "Major":      "Officer",
-                    "Jonkheer":   "Royalty",
-                    "Don":        "Royalty",
-                    "Sir" :       "Royalty",
-                    "Dr":         "Officer",
-                    "Rev":        "Officer",
-                    "the Countess":"Royalty",
-                    "Dona":       "Royalty",
-                    "Mme":        "Mrs",
-                    "Mlle":       "Miss",
-                    "Ms":         "Mrs",
-                    "Mr" :        "Mr",
-                    "Mrs" :       "Mrs",
-                    "Miss" :      "Miss",
-                    "Master" :    "Master",
-                    "Lady" :      "Royalty"
-
-                    }
+    "Capt":       "Officer",
+    "Col":        "Officer",
+    "Major":      "Officer",
+    "Jonkheer":   "Royalty",
+    "Don":        "Royalty",
+    "Sir":        "Royalty",
+    "Dr":         "Officer",
+    "Rev":        "Officer",
+    "the Countess": "Royalty",
+    "Dona":       "Royalty",
+    "Mme":        "Mrs",
+    "Mlle":       "Miss",
+    "Ms":         "Mrs",
+    "Mr":         "Mr",
+    "Mrs":        "Mrs",
+    "Miss":       "Miss",
+    "Master":     "Master",
+    "Lady":       "Royalty"
+    }
 
 # we map each title
-title[ 'Title' ] = title.Title.map( Title_Dictionary )
-title = pd.get_dummies( title.Title )
-#title = pd.concat( [ title , titles_dummies ] , axis = 1 )
+title['Title'] = title.Title.map(Title_Dictionary)
+title = pd.get_dummies(title.Title)
 
-title.head()
-
-
-# ### 3.3.2 Extract Cabin category information from the Cabin number
-# 
-# *Select the cell below and run it by pressing the play button.*
-
-# In[ ]:
+# %% 3.3.2 Extract Cabin category information from the Cabin number
 
 cabin = pd.DataFrame()
 
 # replacing missing cabins with U (for Uknown)
-cabin[ 'Cabin' ] = full.Cabin.fillna( 'U' )
+cabin['Cabin'] = full.Cabin.fillna('U')
 
 # mapping each Cabin value with the cabin letter
-cabin[ 'Cabin' ] = cabin[ 'Cabin' ].map( lambda c : c[0] )
+cabin['Cabin'] = cabin['Cabin'].map(lambda c: c[0])
 
 # dummy encoding ...
-cabin = pd.get_dummies( cabin['Cabin'] , prefix = 'Cabin' )
-
-cabin.head()
+cabin = pd.get_dummies(cabin['Cabin'], prefix='Cabin')
 
 
-# ### 3.3.3 Extract ticket class from ticket number
-# 
-# *Select the cell below and run it by pressing the play button.*
+# %% 3.3.3 Extract ticket class from ticket number
 
-# In[ ]:
-
-# a function that extracts each prefix of the ticket, returns 'XXX' if no prefix (i.e the ticket is a digit)
-def cleanTicket( ticket ):
-    ticket = ticket.replace( '.' , '' )
-    ticket = ticket.replace( '/' , '' )
+# a function that extracts each prefix of the ticket,
+# returns 'XXX' if no prefix (i.e the ticket is a digit)
+def cleanTicket(ticket):
+    ticket = ticket.replace('.', '')
+    ticket = ticket.replace('/', '')
     ticket = ticket.split()
-    ticket = map( lambda t : t.strip() , ticket )
-    ticket = list(filter( lambda t : not t.isdigit() , ticket ))
-    if len( ticket ) > 0:
+    ticket = map(lambda t: t.strip(), ticket)
+    ticket = list(filter(lambda t: not t.isdigit(), ticket))
+    if len(ticket) > 0:
         return ticket[0]
-    else: 
+    else:
         return 'XXX'
+
 
 ticket = pd.DataFrame()
 
 # Extracting dummy variables from tickets:
-ticket[ 'Ticket' ] = full[ 'Ticket' ].map( cleanTicket )
-ticket = pd.get_dummies( ticket[ 'Ticket' ] , prefix = 'Ticket' )
+ticket['Ticket'] = full['Ticket'].map(cleanTicket)
+ticket = pd.get_dummies(ticket['Ticket'], prefix='Ticket')
 
-ticket.shape
-ticket.head()
-
-
-# ### 3.3.4 Create family size and category for family size
+# %% 3.3.4 Create family size and category for family size
 # The two variables *Parch* and *SibSp* are used to create the famiy size variable
-# 
-# *Select the cell below and run it by pressing the play button.*
-
-# In[ ]:
 
 family = pd.DataFrame()
 
