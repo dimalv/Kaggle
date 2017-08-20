@@ -1,72 +1,81 @@
-
 # coding: utf-8
+'''
+ # **An Interactive Data Science Tutorial**
 
-# # **An Interactive Data Science Tutorial**
-#
-#
-# *[Based on the Titanic competition on Kaggle](https://www.kaggle.com/c/titanic)*
-#
-# *by Helge Bjorland & Stian Eide*
-#
-# *January 2017*
-#
-# ---
-#
-# ## Content
-#
-#
-#  1. Business Understanding (5 min)
-#      * Objective
-#      * Description
-#  2. Data Understanding (15 min)
-#     * Import Libraries
-#     * Load data
-#     * Statistical summaries and visualisations
-#     * Excersises
-#  3. Data Preparation (5 min)
-#     * Missing values imputation
-#     * Feature Engineering
-#  4. Modeling (5 min)
-#      * Build the model
-#  5. Evaluation (25 min)
-#      * Model performance
-#      * Feature importance
-#      * Who gets the best performing model?
-#  6. Deployment  (5 min)
-#      * Submit result to Kaggle leaderboard
-#
-# [*Adopted from Cross Industry Standard Process for Data Mining (CRISP-DM)*](http://www.sv-europe.com/crisp-dm-methodology/)
-#
-# ![CripsDM](https://upload.wikimedia.org/wikipedia/commons/thumb/b/b9/CRISP-DM_Process_Diagram.png/220px-CRISP-DM_Process_Diagram.png "Process diagram showing the relationship between the different phases of CRISP-DM")
 
-# # 1. Business Understanding
-#
-# ## 1.1 Objective
-# Predict survival on the Titanic
-#
-# ## 1.2 Description
-# The sinking of the RMS Titanic is one of the most infamous shipwrecks in history.  On April 15, 1912, during her maiden voyage, the Titanic sank after colliding with an iceberg, killing 1502 out of 2224 passengers and crew. This sensational tragedy shocked the international community and led to better safety regulations for ships.
-#
-# One of the reasons that the shipwreck led to such loss of life was that there were not enough lifeboats for the passengers and crew. Although there was some element of luck involved in surviving the sinking, some groups of people were more likely to survive than others, such as women, children, and the upper-class.
-#
-# In this challenge, we ask you to complete the analysis of what sorts of people were likely to survive. In particular, we ask you to apply the tools of machine learning to predict which passengers survived the tragedy.
-#
-# **Before going further, what do you think is the most important reasons passangers survived the Titanic sinking?**
-#
-# [Description from Kaggle](https://www.kaggle.com/c/titanic)
+ *[Based on the Titanic competition on Kaggle]
+ (https://www.kaggle.com/c/titanic)*
+
+ *by Helge Bjorland & Stian Eide*
+
+ *January 2017*
+
+ ---
+
+ ## Content
+
+  1. Business Understanding (5 min)
+      * Objective
+      * Description
+  2. Data Understanding (15 min)
+     * Import Libraries
+     * Load data
+     * Statistical summaries and visualisations
+     * Excersises
+  3. Data Preparation (5 min)
+     * Missing values imputation
+     * Feature Engineering
+  4. Modeling (5 min)
+      * Build the model
+  5. Evaluation (25 min)
+      * Model performance
+      * Feature importance
+      * Who gets the best performing model?
+  6. Deployment  (5 min)
+      * Submit result to Kaggle leaderboard
+
+ [*Adopted from Cross Industry Standard Process for Data Mining (CRISP-DM)*]
+ (http://www.sv-europe.com/crisp-dm-methodology/)
+
+ ![CripsDM](https://upload.wikimedia.org/wikipedia/commons/thumb/b/b9/
+ CRISP-DM_Process_Diagram.png/220px-CRISP-DM_Process_Diagram.png "Process
+ diagram showing the relationship between the different phases of CRISP-DM")
+
+ # 1. Business Understanding
+
+ ## 1.1 Objective
+ Predict survival on the Titanic
+
+ ## 1.2 Description
+ The sinking of the RMS Titanic is one of the most infamous shipwrecks in
+ history.  On April 15, 1912, during her maiden voyage, the Titanic sank after
+ colliding with an iceberg, killing 1502 out of 2224 passengers and crew.
+ This sensational tragedy shocked the international community and led to better
+ safety regulations for ships.
+
+ One of the reasons that the shipwreck led to such loss of life was that there
+ were not enough lifeboats for the passengers and crew. Although there was some
+ element of luck involved in surviving the sinking, some groups of people were
+ more likely to survive than others, such as women, children, and the
+ upper-class.
+
+ In this challenge, we ask you to complete the analysis of what sorts of people
+ were likely to survive. In particular, we ask you to apply the tools of
+ machine learning to predict which passengers survived the tragedy.
+
+ **Before going further, what do you think is the most important reasons
+ passangers survived the Titanic sinking?**
+
+ [Description from Kaggle](https://www.kaggle.com/c/titanic)
+'''
+
 
 # # 2. Data Understanding
 #
-# ## 2.1 Import Libraries
-# First of some preparation. We need to import python libraries containing the necessary functionality we will need.
-#
-# *Simply run the cell below by selecting it and pressing the play button.*
-
-# In[1]: Imports
+# %% 2.1 Import Libraries
 
 # Ignore warnings
 import warnings
-warnings.filterwarnings('ignore')
 
 # Handle table-like data and matrices
 import numpy as np
@@ -78,131 +87,118 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.naive_bayes import GaussianNB
 from sklearn.svm import SVC, LinearSVC
-from sklearn.ensemble import RandomForestClassifier , GradientBoostingClassifier
+from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
 
 # Modelling Helpers
-from sklearn.preprocessing import Imputer , Normalizer , scale
-from sklearn.cross_validation import train_test_split , StratifiedKFold
+from sklearn.preprocessing import Imputer, Normalizer, scale
+from sklearn.cross_validation import StratifiedKFold
 from sklearn.feature_selection import RFECV
+from sklearn.model_selection import train_test_split
 
 # Visualisation
 import matplotlib as mpl
 import matplotlib.pyplot as plt
-import matplotlib.pylab as pylab
 import seaborn as sns
 
+warnings.filterwarnings('ignore')
+
 # Configure visualisations
-#get_ipython().magic(u'matplotlib inline')
-#get_ipython().magic(u'matplotlib')
-mpl.style.use( 'ggplot' )
-sns.set_style( 'white' )
-#pylab.rcParams[ 'figure.figsize' ] = 8 , 6
+# get_ipython().magic(u'matplotlib inline')
+# get_ipython().magic(u'matplotlib')
+mpl.style.use('ggplot')
+sns.set_style('white')
+# mpl.rcParams['figure.figsize'] = (14, 6)
+
+# %% 2.2 Setup helper Functions
 
 
-# ## 2.2 Setup helper Functions
-# There is no need to understand this code. Just run it to simplify the code later in the tutorial.
-#
-# *Simply run the cell below by selecting it and pressing the play button.*
-
-# In[2]: Functions
-
-def plot_histograms( df , variables , n_rows , n_cols ):
-    fig = plt.figure( figsize = ( 16 , 12 ) )
-    for i, var_name in enumerate( variables ):
-        ax=fig.add_subplot( n_rows , n_cols , i+1 )
-        df[ var_name ].hist( bins=10 , ax=ax )
-        ax.set_title( 'Skew: ' + str( round( float( df[ var_name ].skew() ) , ) ) ) # + ' ' + var_name ) #var_name+" Distribution")
-        ax.set_xticklabels( [] , visible=False )
-        ax.set_yticklabels( [] , visible=False )
+def plot_histograms(df, variables, n_rows, n_cols):
+    fig = plt.figure(figsize=(16, 12))
+    for i, var_name in enumerate(variables):
+        ax = fig.add_subplot(n_rows, n_cols, i+1)
+        df[var_name].hist(bins=10, ax=ax)
+        ax.set_title('Skew: ' + str(round(float(df[var_name].skew()),)))
+        # + ' ' + var_name) #var_name+" Distribution")
+        ax.set_xticklabels([], visible=False)
+        ax.set_yticklabels([], visible=False)
     fig.tight_layout()  # Improves appearance a bit.
     plt.show()
 
-def plot_distribution( df , var , target , **kwargs ):
-    row = kwargs.get( 'row' , None )
-    col = kwargs.get( 'col' , None )
-    facet = sns.FacetGrid( df , hue=target , aspect=4 , row = row , col = col )
-    facet.map( sns.kdeplot , var , shade= True )
-    facet.set( xlim=( 0 , df[ var ].max() ) )
+
+def plot_distribution(df, var, target, **kwargs):
+    row = kwargs.get('row', None)
+    col = kwargs.get('col', None)
+    facet = sns.FacetGrid(df, hue=target, aspect=4, row=row, col=col)
+    facet.map(sns.kdeplot, var, shade=True)
+    facet.set(xlim=(0, df[var].max()))
     facet.add_legend()
 
-def plot_categories( df , cat , target , **kwargs ):
-    row = kwargs.get( 'row' , None )
-    col = kwargs.get( 'col' , None )
-    facet = sns.FacetGrid( df , row = row , col = col )
-    facet.map( sns.barplot , cat , target )
+
+def plot_categories(df, cat, target, **kwargs):
+    row = kwargs.get('row', None)
+    col = kwargs.get('col', None)
+    facet = sns.FacetGrid(df, row=row, col=col)
+    facet.map(sns.barplot, cat, target)
     facet.add_legend()
 
-def plot_correlation_map( df ):
+
+def plot_correlation_map(df):
     corr = titanic.corr()
-    _ , ax = plt.subplots( figsize =( 12 , 10 ) )
-    cmap = sns.diverging_palette( 220 , 10 , as_cmap = True )
+    _, ax = plt.subplots(figsize=(12, 10))
+    cmap = sns.diverging_palette(220, 10, as_cmap=True)
     _ = sns.heatmap(
         corr,
-        cmap = cmap,
+        cmap=cmap,
         square=True,
-        cbar_kws={ 'shrink' : .9 },
+        cbar_kws={'shrink': .9},
         ax=ax,
-        annot = True,
-        annot_kws = { 'fontsize' : 12 }
-    )
+        annot=True,
+        annot_kws={'fontsize': 12}
+        )
 
-def describe_more( df ):
-    var = [] ; l = [] ; t = []
+
+def describe_more(df):
+    var = []
+    lv = []
+    t = []
     for x in df:
-        var.append( x )
-        l.append( len( pd.value_counts( df[ x ] ) ) )
-        t.append( df[ x ].dtypes )
-    levels = pd.DataFrame( { 'Variable' : var , 'Levels' : l , 'Datatype' : t } )
-    levels.sort_values( by = 'Levels' , inplace = True )
+        var.append(x)
+        lv.append(len(pd.value_counts(df[x])))
+        t.append(df[x].dtypes)
+    levels = pd.DataFrame({'Variable': var, 'Levels': lv, 'Datatype': t})
+    levels.sort_values(by='Levels', inplace=True)
     return levels
 
-def plot_variable_importance( X , y ):
-    tree = DecisionTreeClassifier( random_state = 99 )
-    tree.fit( X , y )
-    plot_model_var_imp( tree , X , y )
 
-def plot_model_var_imp( model , X , y ):
+def plot_variable_importance(X, y):
+    tree = DecisionTreeClassifier(random_state=99)
+    tree.fit(X, y)
+    plot_model_var_imp(tree, X, y)
+
+
+def plot_model_var_imp(model, X, y):
     imp = pd.DataFrame(
-        model.feature_importances_  ,
-        columns = [ 'Importance' ] ,
-        index = X.columns
-    )
-    imp = imp.sort_values( [ 'Importance' ] , ascending = True )
-    imp[ : 10 ].plot( kind = 'barh' )
-    print (model.score( X , y ))
+        model.feature_importances_,
+        columns=['Importance'],
+        index=X.columns
+        )
+    imp = imp.sort_values(['Importance'], ascending=True)
+    imp[:10].plot(kind='barh')
+    print(model.score(X, y))
 
 
-
-# ## 2.3 Load data
-# Now that our packages are loaded, let's read in and take a peek at the data.
-#
-# *Select the cell below and run it by pressing the play button.*
-
-# In[3]: Load data csv files as a DataFrame
+# %% 2.3 Load data
 train = pd.read_csv("./train.csv")
-test    = pd.read_csv("./test.csv")
+test = pd.read_csv("./test.csv")
 
-full = train.append( test , ignore_index = True )
-titanic = full[ :891 ]
+full = train.append(test, ignore_index=True)
+titanic = full[:891]
 
-del train , test
+del train, test
 
-print ('Datasets:' , 'full:' , full.shape , 'titanic:' , titanic.shape)
+print('Datasets:', 'full:', full.shape, 'titanic:', titanic.shape)
 
-
-# In[4]: 2.4 Statistical summaries and visualisations
-#
-# To understand the data we are now going to consider some key facts about
-# various variables including their relationship with the target variable, i.e. survival.
-# We start by looking at a few lines of the data
-#
-# *Select the cell below and run it by pressing the play button.*
-
-
-# Run the code to see the variables, then read the variable description below to understand them.
-titanic.head()
-
-
+# %% 2.4 Data analysis
 # **VARIABLE DESCRIPTIONS:**
 #
 # We've got a sense of our variables, their class type, and the first few observations of each. We know we're working with 1309 observations of 12 variables. To make things a bit more explicit since a couple of the variable names aren't 100% illuminating, here's what we've got to deal with:
@@ -224,70 +220,23 @@ titanic.head()
 #
 # [More information on the Kaggle site](https://www.kaggle.com/c/titanic/data)
 
-# In[5]: 2.4.1 Next have a look at some key information about the variables
-# An numeric variable is one with values of integers or real numbers while a categorical variable is a variable that can take on one of a limited, and usually fixed, number of possible values, such as blood type.
-#
-# Notice especially what type of variable each is, how many observations there are and some of the variable values.
-#
-# An interesting observation could for example be the minimum age 0.42, do you know why this is?
-#
-# *Select the cell below and run it by pressing the play button.*
-
-
+# key information
 titanic.describe()
 
-
-# In[6]: 2.4.2 A heat map of correlation may give us a understanding of which variables are important
-# *Select the cell below and run it by pressing the play button.*
-
-
-plot_correlation_map( titanic )
+# A heat map of correlation
+plot_correlation_map(titanic)
 plt.title('Features correlation')
 
+# Distributions of Age of passangers who survived or did not survive
+plot_distribution(titanic, var = 'Age', target = 'Survived', row = 'Sex')
 
-# In[7]: 2.4.3 Let's further explore the relationship between the features and survival of passengers
-# We start by looking at the relationship between age and survival.
-#
-# *Select the cell below and run it by pressing the play button.*
+# Distributions of Fare of passangers who survived or did not survive
+plot_distribution(titanic, var = 'Fare', target = 'Survived', row = 'Sex')
 
-# Plot distributions of Age of passangers who survived or did not survive
-plot_distribution( titanic , var = 'Age' , target = 'Survived' , row = 'Sex' )
+# Plot survival rate by Embarked (Categorical)
+plot_categories(titanic, cat = 'Embarked', target = 'Survived')
 
-# Consider the graphs above. Differences between survival for different values is what will be used to separate the target variable (survival in this case) in the model. If the two lines had been about the same, then it would not have been a good variable for our predictive model.
-#
-# Consider some key questions such as; what age does males/females have a higher or lower probability of survival?
-
-# ### 2.4.3 Excersise 1: Investigating numeric variables
-# It's time to get your hands dirty and do some coding! Try to plot the distributions of Fare of passangers who survived or did not survive. Then consider if this could be a good predictive variable.
-#
-# *Hint: use the code from the previous cell as a starting point.*
-
-# In[8]: Distributions of Fare of passangers who survived or did not survive
-plot_distribution( titanic , var = 'Fare' , target = 'Survived' , row = 'Sex' )
-
-
-# In[9]: 2.4.4 Embarked
-# We can also look at categorical variables like Embarked and their relationship with survival.
-#
-# - C = Cherbourg
-# - Q = Queenstown
-# - S = Southampton
-
-
-# Plot survival rate by Embarked
-plot_categories( titanic , cat = 'Embarked' , target = 'Survived' )
-
-
-# ### 2.4.4 Excersise 2 - 5: Investigating categorical variables
-# Even more coding practice! Try to plot the survival rate of Sex, Pclass, SibSp and Parch below.
-#
-# *Hint: use the code from the previous cell as a starting point.*
-#
-# After considering these graphs, which variables do you expect to be good predictors of survival?
-
-# In[10]: FIgure : Survival vs Sex, Pclass, SibSp, and Parch
-# Excersise 2
-# Plot survival rate by Sex
+# Survival vs Sex, Pclass, SibSp, and Parch
 #mpl.rcParams['figure.figsize'] = (14, 6)
 fig = plt.figure()
 plt.subplot(221)
@@ -300,19 +249,18 @@ plt.subplot(224)
 sns.barplot(titanic['Parch'], titanic['Survived'])
 # plot_categories(df=titanic, cat='Sex', target='Survived')
 
-
 # %% 3. Data Preparation
 
 # %% 3.1 1-hot encoding for categorical variables
 
 # Transform Sex into binary values 0 and 1
-sex = pd.Series( np.where( full.Sex == 'male' , 1 , 0 ) , name = 'Sex' )
+sex = pd.Series(np.where(full.Sex == 'male', 1, 0), name='Sex')
 
 # Create a new variable for every unique value of Embarked
-embarked = pd.get_dummies( full.Embarked , prefix='Embarked' )
+embarked = pd.get_dummies(full.Embarked, prefix='Embarked')
 
 # Create a new variable for every unique value of Embarked
-pclass = pd.get_dummies( full.Pclass , prefix='Pclass' )
+pclass = pd.get_dummies(full.Pclass, prefix='Pclass')
 
 
 # %% 3.2 Fill missing values in variables
@@ -358,7 +306,7 @@ Title_Dictionary = {
     "Miss":       "Miss",
     "Master":     "Master",
     "Lady":       "Royalty"
-    }
+   }
 
 # we map each title
 title['Title'] = title.Title.map(Title_Dictionary)
@@ -406,7 +354,7 @@ ticket = pd.get_dummies(ticket['Ticket'], prefix='Ticket')
 
 family = pd.DataFrame()
 
-# introducing a new feature : the size of families (including the passenger)
+# introducing a new feature: the size of families (including the passenger)
 family['FamilySize'] = full['Parch'] + full['SibSp'] + 1
 
 # introducing other features based on the family size
@@ -433,35 +381,34 @@ family['Family_Large'] = family['FamilySize'].map(
 #  - family
 #  - cabin
 #  - ticket
+#  - title
 #
 # *Include the variables you would like to use in the function below seperated
 # by comma, then run the cell*
 
-full_X = pd.concat([imputed, embarked, cabin, sex], axis=1)
+# full_X = pd.concat([imputed, embarked, cabin, sex], axis=1)
+full_X = pd.concat([imputed, embarked, pclass, sex, family, cabin, ticket,
+                    title], axis=1)
 
 # %% 3.4.2 Create datasets
 # Create all datasets that are necessary to train, validate and test models
 train_valid_X = full_X[0:891]
 train_valid_y = titanic.Survived
 test_X = full_X[891:]
+
+# Split to train and validstion
 train_X, valid_X, train_y, valid_y = train_test_split(
         train_valid_X, train_valid_y, train_size = .7)
 
-print (full_X.shape , train_X.shape , valid_X.shape , train_y.shape , valid_y.shape , test_X.shape)
+print (full_X.shape, train_X.shape, valid_X.shape, train_y.shape, valid_y.shape, test_X.shape)
 
 
-# ### 3.4.3 Feature importance
-# Selecting the optimal features in the model is important.
-# We will now try to evaluate what the most important variables are for the model to make the prediction.
-#
-# *Select the cell below and run it by pressing the play button.*
-
-# In[ ]:
+# %% 3.4.3 Plot Feature importance
 
 plot_variable_importance(train_X, train_y)
 
 
-# # 4. Modeling
+# %% 4. Modeling
 # We will now select a model we would like to try then use the training dataset to train this model and thereby check the performance of the model using the test set.
 #
 # ## 4.1 Model Selection
@@ -472,7 +419,7 @@ plot_variable_importance(train_X, train_y)
 # ### 4.1.1 Random Forests Model
 # Try a random forest model by running the cell below.
 
-# In[ ]:
+# In[]:
 
 model = RandomForestClassifier(n_estimators=100)
 
@@ -480,7 +427,7 @@ model = RandomForestClassifier(n_estimators=100)
 # ### 4.1.2 Support Vector Machines
 # Try a Support Vector Machines model by running the cell below.
 
-# In[ ]:
+# In[]:
 
 model = SVC()
 
@@ -488,7 +435,7 @@ model = SVC()
 # ### 4.1.3 Gradient Boosting Classifier
 # Try a Gradient Boosting Classifier model by running the cell below.
 
-# In[ ]:
+# In[]:
 
 model = GradientBoostingClassifier()
 
@@ -496,7 +443,7 @@ model = GradientBoostingClassifier()
 # ### 4.1.4 K-nearest neighbors
 # Try a k-nearest neighbors model by running the cell below.
 
-# In[ ]:
+# In[]:
 
 model = KNeighborsClassifier(n_neighbors = 3)
 
@@ -504,7 +451,7 @@ model = KNeighborsClassifier(n_neighbors = 3)
 # ### 4.1.5 Gaussian Naive Bayes
 # Try a Gaussian Naive Bayes model by running the cell below.
 
-# In[ ]:
+# In[]:
 
 model = GaussianNB()
 
@@ -512,7 +459,7 @@ model = GaussianNB()
 # ### 4.1.6 Logistic Regression
 # Try a Logistic Regression model by running the cell below.
 
-# In[ ]:
+# In[]:
 
 model = LogisticRegression()
 
@@ -522,9 +469,9 @@ model = LogisticRegression()
 #
 # *Select the cell below and run it by pressing the play button.*
 
-# In[ ]:
+# In[]:
 
-model.fit( train_X , train_y )
+model.fit(train_X, train_y)
 
 
 # # 5. Evaluation
@@ -537,10 +484,10 @@ model.fit( train_X , train_y )
 #
 # *Select the cell below and run it by pressing the play button.*
 
-# In[ ]:
+# In[]:
 
 # Score the model
-print (model.score( train_X , train_y ) , model.score( valid_X , valid_y ))
+print (model.score(train_X, train_y), model.score(valid_X, valid_y))
 
 
 # ## 5.2 Feature importance - selecting the optimal features in the model
@@ -548,7 +495,7 @@ print (model.score( train_X , train_y ) , model.score( valid_X , valid_y ))
 #
 # *Select the cell below and run it by pressing the play button.*
 
-# In[ ]:
+# In[]:
 
 #plot_model_var_imp(model, train_X, train_y)
 
@@ -558,19 +505,19 @@ print (model.score( train_X , train_y ) , model.score( valid_X , valid_y ))
 #
 # *Select the cell below and run it by pressing the play button.*
 
-# In[ ]:
+# In[]:
 
-rfecv = RFECV( estimator = model , step = 1 , cv = StratifiedKFold( train_y , 2 ) , scoring = 'accuracy' )
-rfecv.fit( train_X , train_y )
+rfecv = RFECV(estimator = model, step = 1, cv = StratifiedKFold(train_y, 2), scoring = 'accuracy')
+rfecv.fit(train_X, train_y)
 
-#print (rfecv.score( train_X , train_y ) , rfecv.score( valid_X , valid_y ))
-#print( "Optimal number of features : %d" % rfecv.n_features_ )
+#print (rfecv.score(train_X, train_y), rfecv.score(valid_X, valid_y))
+#print("Optimal number of features: %d" % rfecv.n_features_)
 
 # Plot number of features VS. cross-validation scores
 #plt.figure()
-#plt.xlabel( "Number of features selected" )
-#plt.ylabel( "Cross validation score (nb of correct classifications)" )
-#plt.plot( range( 1 , len( rfecv.grid_scores_ ) + 1 ) , rfecv.grid_scores_ )
+#plt.xlabel("Number of features selected")
+#plt.ylabel("Cross validation score (nb of correct classifications)")
+#plt.plot(range(1, len(rfecv.grid_scores_) + 1), rfecv.grid_scores_)
 #plt.show()
 
 
@@ -594,12 +541,12 @@ rfecv.fit( train_X , train_y )
 #  3. Select `Output` on the notebook menubar
 #  4. Select the result dataset and press `Submit to Competition` button
 
-# In[ ]:
+# In[]:
 
-test_Y = model.predict( test_X )
+test_Y = model.predict(test_X)
 passenger_id = full[891:].PassengerId
-test = pd.DataFrame( { 'PassengerId': passenger_id , 'Survived': test_Y } )
+test = pd.DataFrame({'PassengerId': passenger_id, 'Survived': test_Y})
 test.shape
 test.head()
-test.to_csv( 'titanic_pred.csv' , index = False )
+test.to_csv('titanic_pred.csv', index = False)
 
