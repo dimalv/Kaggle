@@ -171,6 +171,9 @@ def describe_more(df):
 
 
 def plot_variable_importance(X, y):
+    '''
+    Train a cllassification tree to estimate the importance of eanch feature
+    '''
     tree = DecisionTreeClassifier(random_state=99)
     tree.fit(X, y)
     plot_model_var_imp(tree, X, y)
@@ -386,9 +389,12 @@ family['Family_Large'] = family['FamilySize'].map(
 # *Include the variables you would like to use in the function below seperated
 # by comma, then run the cell*
 
-# full_X = pd.concat([imputed, embarked, cabin, sex], axis=1)
-full_X = pd.concat([imputed, embarked, pclass, sex, family, cabin, ticket,
-                    title], axis=1)
+#full_X = pd.concat([imputed, embarked, cabin, sex], axis=1)
+full_X = pd.concat(
+    [imputed, embarked, pclass, sex, family, cabin, ticket, title],
+#    [imputed, embarked, pclass, sex, family, cabin, title],
+    axis=1
+    )
 
 # %% 3.4.2 Create datasets
 # Create all datasets that are necessary to train, validate and test models
@@ -404,110 +410,42 @@ print (full_X.shape, train_X.shape, valid_X.shape, train_y.shape, valid_y.shape,
 
 
 # %% 3.4.3 Plot Feature importance
-
 plot_variable_importance(train_X, train_y)
 
-
 # %% 4. Modeling
-# We will now select a model we would like to try then use the training dataset to train this model and thereby check the performance of the model using the test set.
-#
-# ## 4.1 Model Selection
-# Then there are several options to choose from when it comes to models. A good starting point is logisic regression.
-#
-# **Select ONLY the model you would like to try below and run the corresponding cell by pressing the play button.**
+selected_model = 'RandomForest'
 
-# ### 4.1.1 Random Forests Model
-# Try a random forest model by running the cell below.
-
-# In[]:
-
-model = RandomForestClassifier(n_estimators=100)
-
-
-# ### 4.1.2 Support Vector Machines
-# Try a Support Vector Machines model by running the cell below.
-
-# In[]:
-
-model = SVC()
-
-
-# ### 4.1.3 Gradient Boosting Classifier
-# Try a Gradient Boosting Classifier model by running the cell below.
-
-# In[]:
-
-model = GradientBoostingClassifier()
-
-
-# ### 4.1.4 K-nearest neighbors
-# Try a k-nearest neighbors model by running the cell below.
-
-# In[]:
-
-model = KNeighborsClassifier(n_neighbors = 3)
-
-
-# ### 4.1.5 Gaussian Naive Bayes
-# Try a Gaussian Naive Bayes model by running the cell below.
-
-# In[]:
-
-model = GaussianNB()
-
-
-# ### 4.1.6 Logistic Regression
-# Try a Logistic Regression model by running the cell below.
-
-# In[]:
-
-model = LogisticRegression()
-
+if selected_model == 'RandomForest':
+    model = RandomForestClassifier(n_estimators=100)
+elif selected_model == 'SVM':
+    model = SVC()
+elif selected_model == 'GradientBoosting':
+    model = GradientBoostingClassifier()
+elif selected_model == 'KNN':
+    model = KNeighborsClassifier(n_neighbors=5)
+elif selected_model == 'NaiveBayes':
+    model = GaussianNB()
+elif selected_model == 'LogisticRegression':
+    model = LogisticRegression()
+else:
+    print('Unsupported Model!')
 
 # ## 4.2 Train the selected model
-# When you have selected a dataset with the features you want and a model you would like to try it is now time to train the model. After all our preparation model training is simply done with the one line below.
-#
-# *Select the cell below and run it by pressing the play button.*
-
-# In[]:
-
 model.fit(train_X, train_y)
 
 
-# # 5. Evaluation
-# Now we are going to evaluate model performance and the feature importance.
-#
-# ## 5.1 Model performance
-# We can evaluate the accuracy of the model by using the validation set where we know the actual outcome. This data set have not been used for training the model, so it's completely new to the model.
-#
-# We then compare this accuracy score with the accuracy when using the model on the training data. If the difference between these are significant this is an indication of overfitting. We try to avoid this because it means the model will not generalize well to new data and is expected to perform poorly.
-#
-# *Select the cell below and run it by pressing the play button.*
+# %% 5. Evaluation
 
-# In[]:
-
-# Score the model
-print (model.score(train_X, train_y), model.score(valid_X, valid_y))
+# 5.1 Score the model
+print('Train accuracy = %f' % model.score(train_X, train_y))
+print('Validation accuracy = %f' % model.score(valid_X, valid_y))
 
 
-# ## 5.2 Feature importance - selecting the optimal features in the model
-# We will now try to evaluate what the most important variables are for the model to make the prediction. The function below will only work for decision trees, so if that's the model you chose you can uncomment the code below (remove # in the beginning)  and see the feature importance.
-#
-# *Select the cell below and run it by pressing the play button.*
-
-# In[]:
-
-#plot_model_var_imp(model, train_X, train_y)
-
-
-# ### 5.2.1 Automagic
+# %% 5.2.1 Automagic
 # It's also possible to automatically select the optimal number of features and visualize this. This is uncommented and can be tried in the competition part of the tutorial.
-#
-# *Select the cell below and run it by pressing the play button.*
 
-# In[]:
-
-rfecv = RFECV(estimator = model, step = 1, cv = StratifiedKFold(train_y, 2), scoring = 'accuracy')
+rfecv = RFECV(estimator=model, step=1, cv=StratifiedKFold(train_y, 2),
+              scoring='accuracy')
 rfecv.fit(train_X, train_y)
 
 #print (rfecv.score(train_X, train_y), rfecv.score(valid_X, valid_y))
@@ -532,7 +470,7 @@ rfecv.fit(train_X, train_y)
 #
 # **The winner is the one to get the highest scoring model for the validation set**
 
-# # 6. Deployment
+# %% 6. Deployment
 #
 # Deployment in this context means publishing the resulting prediction from the model to the Kaggle leaderboard. To do this do the following:
 #
@@ -540,8 +478,6 @@ rfecv.fit(train_X, train_y)
 #  2. Press the `Publish` button in top right corner.
 #  3. Select `Output` on the notebook menubar
 #  4. Select the result dataset and press `Submit to Competition` button
-
-# In[]:
 
 test_Y = model.predict(test_X)
 passenger_id = full[891:].PassengerId
