@@ -100,6 +100,8 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 import seaborn as sns
 
+# %% Config
+
 warnings.filterwarnings('ignore')
 
 # Configure visualisations
@@ -108,6 +110,10 @@ warnings.filterwarnings('ignore')
 mpl.style.use('ggplot')
 sns.set_style('white')
 # mpl.rcParams['figure.figsize'] = (14, 6)
+
+FLAGS= {'Analyse': False,
+        'Fitting': True,
+        'Deploy': False}
 
 # %% 2.2 Setup helper Functions
 
@@ -223,34 +229,35 @@ print('Datasets:', 'full:', full.shape, 'titanic:', titanic.shape)
 #
 # [More information on the Kaggle site](https://www.kaggle.com/c/titanic/data)
 
-# key information
-titanic.describe()
+if FLAGS['Analyse']:
+    # key information
+    titanic.describe()
 
-# A heat map of correlation
-plot_correlation_map(titanic)
-plt.title('Features correlation')
+    # A heat map of correlation
+    plot_correlation_map(titanic)
+    plt.title('Features correlation')
 
-# Distributions of Age of passangers who survived or did not survive
-plot_distribution(titanic, var = 'Age', target = 'Survived', row = 'Sex')
+    # Distributions of Age of passangers who survived or did not survive
+    plot_distribution(titanic, var = 'Age', target = 'Survived', row = 'Sex')
 
-# Distributions of Fare of passangers who survived or did not survive
-plot_distribution(titanic, var = 'Fare', target = 'Survived', row = 'Sex')
+    # Distributions of Fare of passangers who survived or did not survive
+    plot_distribution(titanic, var = 'Fare', target = 'Survived', row = 'Sex')
 
-# Plot survival rate by Embarked (Categorical)
-plot_categories(titanic, cat = 'Embarked', target = 'Survived')
+    # Plot survival rate by Embarked (Categorical)
+    plot_categories(titanic, cat = 'Embarked', target = 'Survived')
 
-# Survival vs Sex, Pclass, SibSp, and Parch
-#mpl.rcParams['figure.figsize'] = (14, 6)
-fig = plt.figure()
-plt.subplot(221)
-sns.barplot(titanic['Sex'], titanic['Survived'])
-plt.subplot(222)
-sns.barplot(titanic['Pclass'], titanic['Survived'])
-plt.subplot(223)
-sns.barplot(titanic['SibSp'], titanic['Survived'])
-plt.subplot(224)
-sns.barplot(titanic['Parch'], titanic['Survived'])
-# plot_categories(df=titanic, cat='Sex', target='Survived')
+    # Survival vs Sex, Pclass, SibSp, and Parch
+    #mpl.rcParams['figure.figsize'] = (14, 6)
+    fig = plt.figure()
+    plt.subplot(221)
+    sns.barplot(titanic['Sex'], titanic['Survived'])
+    plt.subplot(222)
+    sns.barplot(titanic['Pclass'], titanic['Survived'])
+    plt.subplot(223)
+    sns.barplot(titanic['SibSp'], titanic['Survived'])
+    plt.subplot(224)
+    sns.barplot(titanic['Parch'], titanic['Survived'])
+    # plot_categories(df=titanic, cat='Sex', target='Survived')
 
 # %% 3. Data Preparation
 
@@ -376,23 +383,11 @@ family['Family_Large'] = family['FamilySize'].map(
 # %% 3.4.1 Variable selection
 # Select which features/variables to inculde in the dataset from the list
 # below:
-#
-#  - imputed
-#  - embarked
-#  - pclass
-#  - sex
-#  - family
-#  - cabin
-#  - ticket
-#  - title
-#
-# *Include the variables you would like to use in the function below seperated
-# by comma, then run the cell*
+#   imputed, embarked, pclass, sex, family, cabin, ticket, title
 
 #full_X = pd.concat([imputed, embarked, cabin, sex], axis=1)
 full_X = pd.concat(
     [imputed, embarked, pclass, sex, family, cabin, ticket, title],
-#    [imputed, embarked, pclass, sex, family, cabin, title],
     axis=1
     )
 
@@ -410,19 +405,25 @@ print (full_X.shape, train_X.shape, valid_X.shape, train_y.shape, valid_y.shape,
 
 
 # %% 3.4.3 Plot Feature importance
-plot_variable_importance(train_X, train_y)
+#plot_variable_importance(train_X, train_y)
 
 # %% 4. Modeling
+# ## 4.1 Define a model
 selected_model = 'RandomForest'
 
 if selected_model == 'RandomForest':
-    model = RandomForestClassifier(n_estimators=100)
+    model = RandomForestClassifier(n_estimators=1000,
+                                   criterion="gini"  # "entropy" | "gini"
+                                   max_features=None,
+                                   max_depth=5,
+                                   min_samples_split=None
+                                   )
 elif selected_model == 'SVM':
     model = SVC()
 elif selected_model == 'GradientBoosting':
     model = GradientBoostingClassifier()
 elif selected_model == 'KNN':
-    model = KNeighborsClassifier(n_neighbors=5)
+    model = KNeighborsClassifier(n_neighbors=51)
 elif selected_model == 'NaiveBayes':
     model = GaussianNB()
 elif selected_model == 'LogisticRegression':
@@ -435,31 +436,36 @@ model.fit(train_X, train_y)
 
 
 # %% 5. Evaluation
+if 'results_history' not in locals():
+    results_history = []
+
+results_history.append([model.score(train_X, train_y), model.score(valid_X, valid_y)])
+print(results_history)
 
 # 5.1 Score the model
 print('Train accuracy = %f' % model.score(train_X, train_y))
 print('Validation accuracy = %f' % model.score(valid_X, valid_y))
 
 
-# %% 5.2.1 Automagic
-# It's also possible to automatically select the optimal number of features and visualize this. This is uncommented and can be tried in the competition part of the tutorial.
 
+
+# %% 5.2.1 Automagic.
 rfecv = RFECV(estimator=model, step=1, cv=StratifiedKFold(train_y, 2),
               scoring='accuracy')
 rfecv.fit(train_X, train_y)
 
-#print (rfecv.score(train_X, train_y), rfecv.score(valid_X, valid_y))
-#print("Optimal number of features: %d" % rfecv.n_features_)
+print(rfecv.score(train_X, train_y), rfecv.score(valid_X, valid_y))
+print("Optimal number of features: %d" % rfecv.n_features_)
 
 # Plot number of features VS. cross-validation scores
-#plt.figure()
-#plt.xlabel("Number of features selected")
-#plt.ylabel("Cross validation score (nb of correct classifications)")
-#plt.plot(range(1, len(rfecv.grid_scores_) + 1), rfecv.grid_scores_)
-#plt.show()
+plt.figure()
+plt.xlabel("Number of features selected")
+plt.ylabel("Cross validation score (nb of correct classifications)")
+plt.plot(range(1, len(rfecv.grid_scores_) + 1), rfecv.grid_scores_)
+plt.show()
 
 
-# ## 5.3 Competition time!
+# %% 5.3 Competition time!
 # It's now time for you to get your hands even dirtier and go at it all by yourself in a `challenge`!
 #
 # 1. Try to the other models in step 4.1 and compare their result
@@ -479,10 +485,11 @@ rfecv.fit(train_X, train_y)
 #  3. Select `Output` on the notebook menubar
 #  4. Select the result dataset and press `Submit to Competition` button
 
-test_Y = model.predict(test_X)
-passenger_id = full[891:].PassengerId
-test = pd.DataFrame({'PassengerId': passenger_id, 'Survived': test_Y})
-test.shape
-test.head()
-test.to_csv('titanic_pred.csv', index = False)
+if FLAGS['Deploy']:
+    test_Y = model.predict(test_X)
+    passenger_id = full[891:].PassengerId
+    test = pd.DataFrame({'PassengerId': passenger_id, 'Survived': test_Y})
+    test.shape
+    test.head()
+    test.to_csv('titanic_pred.csv', index = False)
 
