@@ -88,6 +88,7 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.naive_bayes import GaussianNB
 from sklearn.svm import SVC, LinearSVC
 from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
+from sklearn.neural_network.multilayer_perceptron import MLPClassifier
 
 # Modelling Helpers
 from sklearn.preprocessing import Imputer, Normalizer, scale
@@ -409,15 +410,17 @@ print (full_X.shape, train_X.shape, valid_X.shape, train_y.shape, valid_y.shape,
 
 # %% 4. Modeling
 # ## 4.1 Define a model
-selected_model = 'RandomForest'
+selected_model = 'NN'
 
 if selected_model == 'RandomForest':
     model = RandomForestClassifier(n_estimators=1000,
-                                   criterion="gini"  # "entropy" | "gini"
+                                   criterion="gini",  # "entropy" | "gini"
                                    max_features=None,
                                    max_depth=5,
                                    min_samples_split=None
                                    )
+elif selected_model == 'NN':
+    model = MLPClassifier((10, 10, 10))
 elif selected_model == 'SVM':
     model = SVC()
 elif selected_model == 'GradientBoosting':
