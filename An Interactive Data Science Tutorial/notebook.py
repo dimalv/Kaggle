@@ -413,14 +413,12 @@ print (full_X.shape, train_X.shape, valid_X.shape, train_y.shape, valid_y.shape,
 selected_model = 'NN'
 
 if selected_model == 'RandomForest':
-    model = RandomForestClassifier(n_estimators=1000,
-                                   criterion="gini",  # "entropy" | "gini"
-                                   max_features=None,
-                                   max_depth=5,
-                                   min_samples_split=None
-                                   )
+    model = RandomForestClassifier(n_estimators=1000, max_depth=5)
 elif selected_model == 'NN':
-    model = MLPClassifier((10, 10, 10))
+    model = MLPClassifier((50, 20),
+                          solver='lbfgs',
+                          learning_rate='adaptive',
+                          max_iter=100)
 elif selected_model == 'SVM':
     model = SVC()
 elif selected_model == 'GradientBoosting':
@@ -438,16 +436,18 @@ else:
 model.fit(train_X, train_y)
 
 
-# %% 5. Evaluation
+# % 5. Evaluation
 if 'results_history' not in locals():
-    results_history = []
+    results_history = np.zeros((0, 2), dtype=float)
 
-results_history.append([model.score(train_X, train_y), model.score(valid_X, valid_y)])
+train_accuracy = model.score(train_X, train_y)
+validation_accuracy = model.score(valid_X, valid_y)
+results_history = np.concatenate((results_history, np.array([train_accuracy, validation_accuracy])[None, :]))
 print(results_history)
 
 # 5.1 Score the model
-print('Train accuracy = %f' % model.score(train_X, train_y))
-print('Validation accuracy = %f' % model.score(valid_X, valid_y))
+print('Train accuracy = %f' % train_accuracy)
+print('Validation accuracy = %f' % validation_accuracy)
 
 
 
