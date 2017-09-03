@@ -450,49 +450,52 @@ print('Train accuracy = %f' % train_accuracy)
 print('Validation accuracy = %f' % validation_accuracy)
 
 
-
-
-# %% 5.2.1 Automagic.
-rfecv = RFECV(estimator=model, step=1, cv=StratifiedKFold(train_y, 2),
-              scoring='accuracy')
-rfecv.fit(train_X, train_y)
-
-print(rfecv.score(train_X, train_y), rfecv.score(valid_X, valid_y))
-print("Optimal number of features: %d" % rfecv.n_features_)
-
-# Plot number of features VS. cross-validation scores
-plt.figure()
-plt.xlabel("Number of features selected")
-plt.ylabel("Cross validation score (nb of correct classifications)")
-plt.plot(range(1, len(rfecv.grid_scores_) + 1), rfecv.grid_scores_)
-plt.show()
-
-
-# %% 5.3 Competition time!
-# It's now time for you to get your hands even dirtier and go at it all by yourself in a `challenge`!
-#
-# 1. Try to the other models in step 4.1 and compare their result
-#     * Do this by uncommenting the code and running the cell you want to try
-# 2. Try adding new features in step 3.4.1
-#     * Do this by adding them in to the function in the feature section.
+# =============================================================================
 #
 #
-# **The winner is the one to get the highest scoring model for the validation set**
-
-# %% 6. Deployment
+# # %% 5.2.1 Automagic.
+# rfecv = RFECV(estimator=model, step=1, cv=StratifiedKFold(train_y, 2),
+#               scoring='accuracy')
+# rfecv.fit(train_X, train_y)
 #
-# Deployment in this context means publishing the resulting prediction from the model to the Kaggle leaderboard. To do this do the following:
+# print(rfecv.score(train_X, train_y), rfecv.score(valid_X, valid_y))
+# print("Optimal number of features: %d" % rfecv.n_features_)
 #
-#  1. select the cell below and run it by pressing the play button.
-#  2. Press the `Publish` button in top right corner.
-#  3. Select `Output` on the notebook menubar
-#  4. Select the result dataset and press `Submit to Competition` button
-
-if FLAGS['Deploy']:
-    test_Y = model.predict(test_X)
-    passenger_id = full[891:].PassengerId
-    test = pd.DataFrame({'PassengerId': passenger_id, 'Survived': test_Y})
-    test.shape
-    test.head()
-    test.to_csv('titanic_pred.csv', index = False)
-
+# # Plot number of features VS. cross-validation scores
+# plt.figure()
+# plt.xlabel("Number of features selected")
+# plt.ylabel("Cross validation score (nb of correct classifications)")
+# plt.plot(range(1, len(rfecv.grid_scores_) + 1), rfecv.grid_scores_)
+# plt.show()
+#
+#
+# # %% 5.3 Competition time!
+# # It's now time for you to get your hands even dirtier and go at it all by yourself in a `challenge`!
+# #
+# # 1. Try to the other models in step 4.1 and compare their result
+# #     * Do this by uncommenting the code and running the cell you want to try
+# # 2. Try adding new features in step 3.4.1
+# #     * Do this by adding them in to the function in the feature section.
+# #
+# #
+# # **The winner is the one to get the highest scoring model for the validation set**
+#
+# # %% 6. Deployment
+# #
+# # Deployment in this context means publishing the resulting prediction from the model to the Kaggle leaderboard. To do this do the following:
+# #
+# #  1. select the cell below and run it by pressing the play button.
+# #  2. Press the `Publish` button in top right corner.
+# #  3. Select `Output` on the notebook menubar
+# #  4. Select the result dataset and press `Submit to Competition` button
+#
+# if FLAGS['Deploy']:
+#     test_Y = model.predict(test_X)
+#     passenger_id = full[891:].PassengerId
+#     test = pd.DataFrame({'PassengerId': passenger_id, 'Survived': test_Y})
+#     test.shape
+#     test.head()
+#     test.to_csv('titanic_pred.csv', index = False)
+#
+#
+# =============================================================================
